@@ -4,8 +4,15 @@ on:
     branches:
       - master
       - dev
+env: # we can define it on diffrent levels
+  MONGODB_DB_NAME: gha-demo
 jobs:
   test:
+    env: # we can define it on diffrent levels
+      MONGODB_CLUSTER_ADDRESS:  #<we_can_set_cloud_mongo_db>
+      MONGODB_USERNAME:  ${{ secrets.MONGODB_USERNAME }}
+      MONGODB_PASSWORD:  ${{ secrets.MONGODB_PASSWORD }}
+      PORT: #<we_can_set_cloud_mongo_db>
     environment: testing
     runs-on: ubuntu-latest
     steps:
@@ -19,15 +26,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run server
-        run: npm start & npx wait-on http://127.0.0.1:XYZ
+        run: npm start & npx wait-on http://127.0.0.1:XY$PORT
       - name: Run tests
         run: npm test
       - name: Output information
-        run: echo "..."
+        run: echo "MONGODB_USERNAME: {{env.MONGODB_USERNAME}}"
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Output information
         run: |        
-          echo "..."
+          echo "MONGODB_USERNAME: {{env.MONGODB_USERNAME}}"  #This will not be avialable in the job.
+          echo "MONGODB_DB_NAME: {{env.MONGODB_DB_NAME}}"
